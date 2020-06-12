@@ -1,3 +1,5 @@
+Created by @sstaub
+
 # OSC Library
 
 The **OSC Library** allows you to create OSC (Open Sound Control) messages. Only sending of OSC messages is supported.
