@@ -13,7 +13,7 @@ A web form allows the user to amend basic IP information, such as Local IP, Subn
 This sketch fires TCP OSC messages to trigger Macros on the Eos console. This sketch checks it has received a reply within a specified time. If a reply has not been received, this sketch pings the console, and if a reply is still not received, the sketch disconnects from the console.
 
 
-RF Functionality is only enabled when IP address is selected.
+RF Functionality is only enabled when device is successfully subscribed to Eos.
 
 
 ## Parts:
