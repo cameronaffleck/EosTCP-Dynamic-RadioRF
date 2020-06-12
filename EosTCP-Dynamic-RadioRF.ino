@@ -37,7 +37,7 @@
  * 1x Arduino Ethernet Shield
  * 1x RF Solutions ZPT-8RS RF Module
  * 
- * PINS 4, 10-13 CANNOT be used due to Ethernet Shield!
+ * PINS 4, 10-13 CANNOT be used due to Ethernet!
 */
 
 /*================ LIBRARIES =================*/
