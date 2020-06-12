@@ -73,7 +73,7 @@ int RemIPmax = 254; // highest 4th octet value in range
 EthernetServer webServer(80);
 EthernetClient osc;
 
-char buffer[100];
+char buffer[100]; //html code below cannot exceed 100 characters (including ") per line
 
 const char htmlx0[] PROGMEM = "<html><title>Eos Remote Network Setup</title><body marginwidth=\"0\" marginheight=\"0\" ";
 const char htmlx1[] PROGMEM = "leftmargin=\"0\" style=\"margin: 0; padding: 0;\"><table bgcolor=\"#999999\" border";
@@ -178,7 +178,7 @@ bool printWebData = true;
 const int MAX_LEN = 20;
 
 //LED Definitions
-#define LINK 9
+#define LINK 9 //to indicate successful connection
 
 /*================== SETUP ===================*/
 void setup() {
