@@ -30,7 +30,7 @@
  * This sketch fires TCP OSC messages to trigger Macros on the Eos console. The sketch checks
  * it has received a reply within a specified time. If a reply has not been received, the sketch
  * pings the console, and if a reply is still not received, the sketch disconnects from the console.
- * RF Functionality is only enabled when IP address is selected.
+ * RF Functionality is only enabled when the device successfully subscribes to Eos.
  * 
  * Parts:
  * 1x Arduino Uno
