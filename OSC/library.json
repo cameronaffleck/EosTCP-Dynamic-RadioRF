@@ -1,0 +1,14 @@
+{
+  "name": "OSC",
+  "keywords": "OSC, Open Sound Control",
+  "description": "A small library for creating OSC messages.",
+  "repository":
+  {
+    "type": "git",
+    "url": "https://github.com/sstaub/OSC"
+  },
+  "version": "1.0.0",
+  "frameworks": "arduino",
+  "platforms": "*"
+}
+
