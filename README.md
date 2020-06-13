@@ -10,7 +10,7 @@ To allow an ETC Eos Family Console to be remotely trigged by a RF remote over th
 A web form allows the user to amend basic IP information, such as Local IP, Subnet Mask, and Remote IP address (Eos) range. The defined range allows the sketch to use ARP to find a console with the correct IP address and open port number. The Port number is allocated in the sketch. The MAC address is allocated in the sketch.
 
 
-This sketch fires TCP OSC messages to trigger Macros on the Eos console. This sketch checks it has received a reply within a specified time. If a reply has not been received, this sketch pings the console, and if a reply is still not received, the sketch disconnects from the console.
+This sketch fires TCP OSC messages to trigger Macros on the Eos console. The sketch constantly pings the console to confirm the connection is still active. If a reply is received, a LED flashes. If a reply has not been received, this sketch re-pings the console, and if a reply is still not received, the sketch disconnects from the console.
 
 
 RF Functionality is only enabled when device is successfully subscribed to Eos.
