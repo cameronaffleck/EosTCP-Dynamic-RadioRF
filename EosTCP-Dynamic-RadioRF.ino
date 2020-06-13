@@ -1,43 +1,44 @@
 /*
- * DEVELOPER NOTES
- * Copyright Cameron Affleck 2020
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy 
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- * THE SOFTWARE.
- * 
- * 
- * Function:
- * To allow an ETC Eos Family Console to be remotely trigged by a RF remote over the network. 
- * A web form allows the user to amend basic IP information, such as Local IP, Subnet Mask,
- * and Remote IP address (Eos) range. The defined range allows the sketch to use ARP to find
- * a console with the correct IP address and open port number. The Port number is allocated 
- * in the sketch. The MAC address is allocated in the sketch.
- * This sketch fires TCP OSC messages to trigger Macros on the Eos console. The sketch checks
- * it has received a reply within a specified time. If a reply has not been received, the sketch
- * pings the console, and if a reply is still not received, the sketch disconnects from the console.
- * RF Functionality is only enabled when the device successfully subscribes to Eos.
- * 
- * Parts:
- * 1x Arduino Uno
- * 1x Arduino Ethernet Shield
- * 1x RF Solutions ZPT-8RS RF Module
- * 
- * PINS 4, 10-13 CANNOT be used due to Ethernet!
+   DEVELOPER NOTES
+   Copyright Cameron Affleck 2020
+
+   Permission is hereby granted, free of charge, to any person obtaining a copy
+   of this software and associated documentation files (the "Software"), to deal
+   in the Software without restriction, including without limitation the rights
+   to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+   copies of the Software, and to permit persons to whom the Software is
+   furnished to do so, subject to the following conditions:
+
+   The above copyright notice and this permission notice shall be included in
+   all copies or substantial portions of the Software.
+
+   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+   IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+   FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+   AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+   LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+   THE SOFTWARE.
+
+
+   Function:
+   To allow an ETC Eos Family Console to be remotely trigged by a RF remote over the network.
+   A web form allows the user to amend basic IP information, such as Local IP, Subnet Mask,
+   and Remote IP address (Eos) range. The defined range allows the sketch to use ARP to find
+   a console with the correct IP address and open port number. The Port number is allocated
+   in the sketch. The MAC address is allocated in the sketch.
+   This sketch fires TCP OSC messages to trigger Macros on the Eos console. The sketch constantly
+   pings the console to confirm the connection is still active. If a reply is received, a LED flashes.
+   If a reply has not been received, the sketch re-pings the console, and if a reply is still not
+   received, the sketch disconnects from the console.
+   RF Functionality is only enabled when IP address is selected.
+
+   Parts:
+   1x Arduino Uno
+   1x Arduino Ethernet Shield
+   1x RF Solutions ZPT-8RS RF Module
+
+   PINS 4, 10-13 CANNOT be used due to Ethernet!
 */
 
 /*================ LIBRARIES =================*/
@@ -60,11 +61,11 @@
 int StateChange = 0;
 byte Inputs18 = 0b00000000;
 
-byte myMac[6] = {0xA8,0x61,0x0A,0xAE,0x14,0x7A};
-byte myIP[4] = {10,101,75,101};
-byte myNM[4] = {255,255,0,0};
-byte myGW[4] = {10,101,75,1};
-byte RemIP[4] = {10,101,100,0};
+byte myMac[6] = {0xA8, 0x61, 0x0A, 0xAE, 0x14, 0x7A};
+byte myIP[4] = {10, 101, 75, 101};
+byte myNM[4] = {255, 255, 0, 0};
+byte myGW[4] = {10, 101, 75, 1};
+byte RemIP[4] = {10, 101, 100, 0};
 int RemPort = 3032; // remote port to transmit to
 
 int timeoutValue = 500; //connection timeout value in milliseconds (default 500)
@@ -73,7 +74,7 @@ int RemIPmax = 254; // highest 4th octet value in range
 EthernetServer webServer(80);
 EthernetClient osc;
 
-char buffer[100]; //html code below cannot exceed 100 characters (including ") per line
+char buffer[100];
 
 const char htmlx0[] PROGMEM = "<html><title>Eos Remote Network Setup</title><body marginwidth=\"0\" marginheight=\"0\" ";
 const char htmlx1[] PROGMEM = "leftmargin=\"0\" style=\"margin: 0; padding: 0;\"><table bgcolor=\"#999999\" border";
@@ -159,6 +160,7 @@ int screenLock = 0;
 unsigned long pingLast = millis();
 unsigned long pingInt = 3000;
 unsigned long lastMessageRXTime = 0;
+unsigned long lastPingRXTime = 0;
 bool timeoutPingSent = false;
 #define PING_AFTER_IDLE_INTERVAL 3500
 #define TIMEOUT_AFTER_IDLE_INTERVAL 4000
@@ -176,9 +178,12 @@ int subscribed = 0;
 int filtered = 0;
 bool printWebData = true;
 const int MAX_LEN = 20;
+const byte numChars = 100;
+char receivedChars[numChars];
+boolean newData = false;
 
 //LED Definitions
-#define LINK 9 //to indicate successful connection
+#define LINK 9
 
 /*================== SETUP ===================*/
 void setup() {
@@ -257,7 +262,7 @@ void EosConnect() {
     issueEosSubscribes();
     radioRX();
     issueEosPings();
-    eosReplies();
+    eosParse();
     if (lastMessageRXTime > 0) {
       unsigned long diff = millis() - lastMessageRXTime;
       if (diff > TIMEOUT_AFTER_IDLE_INTERVAL) {
@@ -270,7 +275,13 @@ void EosConnect() {
         timeoutPingSent = true;
       }
     }
-
+    if (lastPingRXTime > 0) {
+      unsigned long diff = millis() - lastPingRXTime;
+      if (diff > 50) {
+        digitalWrite(LINK, LOW);
+        lastPingRXTime = 0;
+      }
+    }
   }
 }
 
@@ -278,8 +289,6 @@ void issueEosSubscribes() {
   if (osc.connected() && subscribed == 0) {
     oscTxSub(oscSubscribe);
     subscribed = 1;
-    digitalWrite(LINK, HIGH);
-    //pingReturn = millis();
   }
 }
 
@@ -299,17 +308,43 @@ void issueEosPings() {
   }
 }
 
-void eosReplies() {
-  String readString;
-  while (osc.available()) {
-    delay(2);
-    char c = osc.read();
-    readString += c;
+void eosParse() {
+recvWithEndMarker();
+showNewData();
+}
+
+void recvWithEndMarker(){
+  static byte ndx = 0;
+  char endMarker = '\0';
+  char rc;
+
+  while (osc.available() && newData == false){
+    rc = osc.read();
+    if(rc !=endMarker){
+      receivedChars[ndx] = rc;
+      ndx++;
+      if (ndx>=numChars){
+        ndx = numChars - 1;
+      }
+    } else {
+      receivedChars[ndx] = '\0';
+      ndx = 0;
+      newData = true;
+    } 
   }
-  if (readString.length() > 0) {
-    readString = "";
+ }
+
+void showNewData() {
+  if(newData == true){
+    if(strlen(receivedChars)>0){
     lastMessageRXTime = millis();
     timeoutPingSent = false;
+    }
+    if(strstr(receivedChars, "/eos/out/ping") >0){
+    lastPingRXTime = millis();
+    digitalWrite(LINK, HIGH);
+    }
+    newData = false;
   }
 }
 
