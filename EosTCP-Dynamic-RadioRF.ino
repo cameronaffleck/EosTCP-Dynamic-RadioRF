@@ -74,7 +74,7 @@ int RemIPmax = 254; // highest 4th octet value in range
 EthernetServer webServer(80);
 EthernetClient osc;
 
-char buffer[100];
+char buffer[120];
 
 const char htmlx0[] PROGMEM = "<html><title>Eos Remote Network Setup</title><body marginwidth=\"0\" marginheight=\"0\" ";
 const char htmlx1[] PROGMEM = "leftmargin=\"0\" style=\"margin: 0; padding: 0;\"><table bgcolor=\"#999999\" border";
@@ -88,7 +88,7 @@ PGM_P const string_table0[] PROGMEM = {
 };
 
 const char htmla0[] PROGMEM = "<script>function hex2num (s_hex) {eval(\"var n_num=0X\" + s_hex);return n_num;}";
-const char htmla1[] PROGMEM = "</script><table style=\"margin-left:10; width:300\"><form><input type=\"hidden\" name=\"SBM\" value=\"1\">";
+const char htmla1[] PROGMEM = "</script><table style=\"margin-left:10; width:410\"><form><input type=\"hidden\" name=\"SBM\" value=\"1\">";
 PGM_P const string_table1[] PROGMEM = {
   htmla0,
   htmla1
@@ -98,10 +98,10 @@ const char htmlb0[] PROGMEM = "<input id=\"T2\" type=\"hidden\" name=\"DT1\"><in
 const char htmlb1[] PROGMEM = "\"><input id=\"T6\" type=\"hidden\" name=\"DT3\"><input id=\"T8\" type=\"hidden\" name=\"DT4";
 const char htmlb2[] PROGMEM = "\"><input id=\"T10\" type=\"hidden\" name=\"DT5\"><input id=\"T12\" type=\"hidden\" name=\"D";
 const char htmlb3[] PROGMEM = "T6\"></td></tr>";
-const char htmlb4[] PROGMEM = "<tr><td>Device IP:</td><td><input type=\"text\" size=\"3\" maxlength=\"3\" name=\"DT7\" value=\"";
-const char htmlb5[] PROGMEM = "\">.<input type=\"text\" size=\"3\" maxlength=\"3\" name=\"DT8\" value=\"";
-const char htmlb6[] PROGMEM = "\">.<input type=\"text\" size=\"3\" maxlength=\"3\" name=\"DT9\" value=\"";
-const char htmlb7[] PROGMEM = "\">.<input type=\"text\" size=\"3\" maxlength=\"3\" name=\"DT10\" value=\"";
+const char htmlb4[] PROGMEM = "<tr><td>Device IP:</td><td><input type=\"number\" min=\"1\" max=\"254\" size=\"3\" maxlength=\"3\" name=\"DT7\" value=\"";
+const char htmlb5[] PROGMEM = "\">.<input type=\"number\" min=\"1\" max=\"254\" size=\"3\" maxlength=\"3\" name=\"DT8\" value=\"";
+const char htmlb6[] PROGMEM = "\">.<input type=\"number\" min=\"1\" max=\"254\" size=\"3\" maxlength=\"3\" name=\"DT9\" value=\"";
+const char htmlb7[] PROGMEM = "\">.<input type=\"number\" min=\"1\" max=\"254\" size=\"3\" maxlength=\"3\" name=\"DT10\" value=\"";
 PGM_P const string_table2[] PROGMEM = {
   htmlb0,
   htmlb1,
@@ -113,10 +113,10 @@ PGM_P const string_table2[] PROGMEM = {
   htmlb7
 };
 
-const char htmlc0[] PROGMEM = "\"></td></tr><tr><td>Net Mask:</td><td><input type=\"text\" size=\"3\" maxlength=\"3\" name=\"DT11\" value=\"";
-const char htmlc1[] PROGMEM = "\">.<input type=\"text\" size=\"3\" maxlength=\"3\" name=\"DT12\" value=\"";
-const char htmlc2[] PROGMEM = "\">.<input type=\"text\" size=\"3\" maxlength=\"3\" name=\"DT13\" value=\"";
-const char htmlc3[] PROGMEM = "\">.<input type=\"text\" size=\"3\" maxlength=\"3\" name=\"DT14\" value=\"";
+const char htmlc0[] PROGMEM = "\"></td></tr><tr><td>Net Mask:</td><td><input type=\"number\" min=\"0\" max=\"255\" size=\"3\" maxlength=\"3\" name=\"DT11\" value=\"";
+const char htmlc1[] PROGMEM = "\">.<input type=\"number\" min=\"0\" max=\"255\" size=\"3\" maxlength=\"3\" name=\"DT12\" value=\"";
+const char htmlc2[] PROGMEM = "\">.<input type=\"number\" min=\"0\" max=\"255\" size=\"3\" maxlength=\"3\" name=\"DT13\" value=\"";
+const char htmlc3[] PROGMEM = "\">.<input type=\"number\" min=\"0\" max=\"255\" size=\"3\" maxlength=\"3\" name=\"DT14\" value=\"";
 PGM_P const string_table3[] PROGMEM = {
   htmlc0,
   htmlc1,
@@ -124,39 +124,65 @@ PGM_P const string_table3[] PROGMEM = {
   htmlc3
 };
 
-const char htmld0[] PROGMEM = "\"></td></tr><tr><td>Gateway:</td><td><input type=\"text\" size=\"3\" maxlength=\"3\" name=\"DT15\" value=\"";
-const char htmld1[] PROGMEM = "\">.<input type=\"text\" size=\"3\" maxlength=\"3\" name=\"DT16\" value=\"";
-const char htmld2[] PROGMEM = "\">.<input type=\"text\" size=\"3\" maxlength=\"3\" name=\"DT17\" value=\"";
-const char htmld3[] PROGMEM = "\">.<input type=\"text\" size=\"3\" maxlength=\"3\" name=\"DT18\" value=\"";
-const char htmld4[] PROGMEM = "\"></td></tr><tr><td>Eos IP:</td><td><input type=\"text\" size=\"3\" maxlength=\"3\" name=\"DT19\" value=\"";
-const char htmld5[] PROGMEM = "\" disabled>.<input type=\"text\" size=\"3\" maxlength=\"3\" name=\"DT20\" value=\"";
-const char htmld6[] PROGMEM = "\" disabled>.<input type=\"text\" size=\"3\" maxlength=\"3\" name=\"DT21\" value=\"";
-const char htmld7[] PROGMEM = "\">.<input type=\"text\" size=\"3\" maxlength=\"3\" name=\"DT22\" value=\"";
-const char htmld8[] PROGMEM = "\" > - <input type=\"text\" size=\"3\" maxlength=\"3\" name=\"DT23\" value=\"";
-const char htmld9[] PROGMEM = "\" ></td></tr><tr><td colspan=\"2\"><br>Please reload webpage after clicking update!</td></tr>";
-const char htmld10[] PROGMEM = "<tr><td><input id=\"button1\"type=\"submit\" value=\"UPDATE\" ";
-const char htmld11[] PROGMEM = "></td></tr></form></table></body></html>";
+const char htmld0[] PROGMEM = "\"></td></tr><tr><td>Gateway:</td><td><input type=\"number\" min=\"1\" max=\"254\" size=\"3\" maxlength=\"3\" name=\"DT15\" value=\"";
+const char htmld1[] PROGMEM = "\">.<input type=\"number\" min=\"1\" max=\"254\" size=\"3\" maxlength=\"3\" name=\"DT16\" value=\"";
+const char htmld2[] PROGMEM = "\">.<input type=\"number\" min=\"1\" max=\"254\" size=\"3\" maxlength=\"3\" name=\"DT17\" value=\"";
+const char htmld3[] PROGMEM = "\">.<input type=\"number\" min=\"1\" max=\"254\" size=\"3\" maxlength=\"3\" name=\"DT18\" value=\"";
 PGM_P const string_table4[] PROGMEM = {
   htmld0,
   htmld1,
   htmld2,
-  htmld3,
-  htmld4,
-  htmld5,
-  htmld6,
-  htmld7,
-  htmld8,
-  htmld9,
-  htmld10,
-  htmld11
+  htmld3
+};
+
+const char htmle0[] PROGMEM = "\"></td></tr><tr><td>Eos IP:</td><td><input type=\"number\" min=\"1\" max=\"254\" size=\"3\" maxlength=\"3\" name=\"DT19\" value=\"";
+const char htmle1[] PROGMEM = "\">.<input type=\"number\" min=\"1\" max=\"254\" size=\"3\" maxlength=\"3\" name=\"DT20\" value=\"";
+const char htmle2[] PROGMEM = "\">.<input type=\"number\" min=\"1\" max=\"254\" size=\"3\" maxlength=\"3\" name=\"DT21\" value=\"";
+const char htmle3[] PROGMEM = "\">.<input type=\"number\" min=\"1\" max=\"254\" size=\"3\" maxlength=\"3\" name=\"DT22\" value=\"";
+const char htmle4[] PROGMEM = "\" > - <input type=\"number\" min=\"1\" max=\"254\" size=\"3\" maxlength=\"3\" name=\"DT23\" value=\"";
+PGM_P const string_table5[] PROGMEM = {
+  htmle0,
+  htmle1,
+  htmle2,
+  htmle3,
+  htmle4
+};
+
+const char htmlf0[] PROGMEM = "\"></td></tr><tr><td><br></td></tr><tr><td>Button 1 (Red):</td><td>";
+const char htmlf1[] PROGMEM = "<input type=\"number\" size=\"4\" min=\"1\" max=\"255\" maxlength=\"3\" name=\"DT24\" value=\"";
+const char htmlf2[] PROGMEM = "\">&emsp;(001-255)</td></tr><tr><td>Button 2 (Yellow):</td>";
+const char htmlf3[] PROGMEM = "<td><input type=\"number\" size=\"4\" min=\"1\" max=\"255\" maxlength=\"3\" name=\"DT25\" value=\"";
+const char htmlf4[] PROGMEM = "\">&emsp;(001-255)</td></tr><tr><td>Button 3 (Blue):</td>";
+const char htmlf5[] PROGMEM = "<td><input type=\"number\" size=\"4\" min=\"1\" max=\"255\" maxlength=\"3\" name=\"DT26\" value=\"";
+const char htmlf6[] PROGMEM = "\">&emsp;(001-255)</td></tr><tr><td>Button 4 (Green):</td>";
+const char htmlf7[] PROGMEM = "<td><input type=\"number\" size=\"4\" min=\"1\" max=\"255\" maxlength=\"3\" name=\"DT27\" value=\"";
+const char htmlf8[] PROGMEM = "\">&emsp;(001-255)</td></tr>";
+PGM_P const string_table6[] PROGMEM = {
+  htmlf0,
+  htmlf1,
+  htmlf2,
+  htmlf3,
+  htmlf4,
+  htmlf5,
+  htmlf6,
+  htmlf7,
+  htmlf8
+};
+
+const char htmlg0[] PROGMEM = "<tr><td colspan=\"2\"><br>Please reload webpage after clicking update!</td></tr>";
+const char htmlg1[] PROGMEM = "<tr><td><input id=\"button1\"type=\"submit\" value=\"UPDATE\" ";
+const char htmlg2[] PROGMEM = "></td></tr></form></table></body></html>";
+PGM_P const string_table7[] PROGMEM = {
+  htmlg0,
+  htmlg1,
+  htmlg2
 };
 
 const byte ID = 0x92;
 
-//Menu Definitions
-int screenLock = 0;
-
 //OSC Definitions
+#define SUBSCRIBE 1
+#define UNSUBSCRIBE 0
 unsigned long pingLast = millis();
 unsigned long pingInt = 3000;
 unsigned long lastMessageRXTime = 0;
@@ -164,18 +190,16 @@ unsigned long lastPingRXTime = 0;
 bool timeoutPingSent = false;
 #define PING_AFTER_IDLE_INTERVAL 3500
 #define TIMEOUT_AFTER_IDLE_INTERVAL 4000
-char oscPing[64] = "/eos/ping/RF1_ping";
-char oscSubscribe[64] = "/eos/subscribe";
-char oscFilter1[64] = "/eos/filter/add=/eos/out/ping";
-char oscRadio1[64] = "/eos/macro/911/fire";
-char oscRadio2[64] = "/eos/macro/912/fire";
-char oscRadio3[64] = "/eos/macro/913/fire";
-char oscRadio4[64] = "/eos/macro/914/fire";
+char pingValue[24] = "RX_POE_01";
+int button1 = 1;
+int button2 = 2;
+int button3 = 3;
+int button4 = 4;
 char oscMessage[64];
 int16_t oscMessageLength;
 int32_t value = 1;
-int subscribed = 0;
-int filtered = 0;
+bool subscribed = false;
+bool filtered = false;
 bool printWebData = true;
 const int MAX_LEN = 20;
 const byte numChars = 100;
@@ -217,6 +241,10 @@ void ShieldSetup() {
     }
     RemIPmin = EEPROM.read(22);
     RemIPmax = EEPROM.read(23);
+    button1 = EEPROM.read(24);
+    button2 = EEPROM.read(25);
+    button3 = EEPROM.read(26);
+    button4 = EEPROM.read(27);
   }
   Ethernet.begin(myMac, myIP, myGW, myGW, myNM);
   Ethernet.setRetransmissionCount(1);
@@ -232,10 +260,6 @@ void radioSetup() {
 /*=================== LOOP ===================*/
 void loop() {
   webForm();
-  if (screenLock == 1) {
-    osc.stop();
-    digitalWrite(LINK, LOW);
-  }
   EosConnect();
 }
 
@@ -243,7 +267,6 @@ void loop() {
 
 //Eos Events
 void EosConnect() {
-  screenLock = 0;
   if (!osc.connected()) {
     int RemIPmax1;
     RemIPmax1 = RemIPmax + 1;
@@ -255,8 +278,8 @@ void EosConnect() {
     if (RemIP[3] == RemIPmax1) {
       RemIP[3] = RemIPmin;
     }
-    subscribed = 0;
-    filtered = 0;
+    subscribed = false;
+    filtered = false;
   } else if (osc.connected()) {
     issueEosFilters();
     issueEosSubscribes();
@@ -271,7 +294,7 @@ void EosConnect() {
         timeoutPingSent = false;
       }
       if (!timeoutPingSent && diff > PING_AFTER_IDLE_INTERVAL) {
-        oscTX(oscPing);
+        oscPing(pingValue);
         timeoutPingSent = true;
       }
     }
@@ -286,27 +309,28 @@ void EosConnect() {
 }
 
 void issueEosSubscribes() {
-  if (osc.connected() && subscribed == 0) {
-    oscTxSub(oscSubscribe);
-    subscribed = 1;
+  if (osc.connected() && subscribed == false) {
+    oscSubscribe(SUBSCRIBE);
+    subscribed = true;
   }
 }
 
 void issueEosFilters() {
-  if (osc.connected() && filtered == 0) {
-    oscTX(oscFilter1);
-    filtered = 1;
+  if (osc.connected() && filtered == false) {
+    oscFilter("/eos/out/ping");
+    filtered = true;
   }
 }
 
 void issueEosPings() {
   while ((millis() - pingLast) >= pingInt) {
     if (osc.connected()) {
-      oscTX(oscPing);
+      oscPing(pingValue);
     }
     pingLast = millis();
   }
 }
+
 
 void eosParse() {
 recvWithEndMarker();
@@ -353,7 +377,7 @@ void radioRX() {
   StateChange = bitRead(Inputs18, 0);
   if ((digitalRead(RX1)) == HIGH) {
     if (StateChange == 0) {
-      oscTX(oscRadio1);
+      oscMacro(button1);
       bitSet(Inputs18, 0);
     }
   } else if (StateChange == 1) {
@@ -362,7 +386,7 @@ void radioRX() {
   StateChange = bitRead(Inputs18, 1);
   if ((digitalRead(RX2)) == HIGH) {
     if (StateChange == 0) {
-      oscTX(oscRadio2);
+      oscMacro(button2);
       bitSet(Inputs18, 1);
     }
   } else if (StateChange == 1) {
@@ -371,7 +395,7 @@ void radioRX() {
   StateChange = bitRead(Inputs18, 2);
   if ((digitalRead(RX3)) == HIGH) {
     if (StateChange == 0) {
-      oscTX(oscRadio3);
+      oscMacro(button3);
       bitSet(Inputs18, 2);
     }
   } else if (StateChange == 1) {
@@ -380,7 +404,7 @@ void radioRX() {
   StateChange = bitRead(Inputs18, 3);
   if ((digitalRead(RX4)) == HIGH) {
     if (StateChange == 0) {
-      oscTX(oscRadio4);
+      oscMacro(button4);
       bitSet(Inputs18, 3);
     }
   } else if (StateChange == 1) {
@@ -389,13 +413,41 @@ void radioRX() {
 }
 
 //OSC Events
-void oscTX(char * toBeSent) {
-  oscMessageLength = oscSend(oscMessage, toBeSent, TCP10);
+void oscSubscribe(int32_t value) {
+  char subscribe[64] = "/eos/subscribe";
+  oscMessageLength = oscSend(oscMessage, subscribe, value, TCP10);
   osc.write(oscMessage, oscMessageLength);
 }
 
-void oscTxSub(char * toBeSent) {
-  oscMessageLength = oscSend(oscMessage, toBeSent, value, TCP10);
+void oscSubscribe(char * subscribeParam, int32_t value) {
+  char subscribe[64] = "/eos/subscribe/param/";
+  strcat(subscribe, subscribeParam);
+  oscMessageLength = oscSend(oscMessage, subscribe, value, TCP10);
+  osc.write(oscMessage, oscMessageLength);
+}
+
+void oscFilter(char * filterParam){
+  char filter[64] = "/eos/filter/add=";
+  strcat(filter, filterParam);
+  oscMessageLength = oscSend(oscMessage, filter, TCP10);
+  osc.write(oscMessage, oscMessageLength);
+}
+
+void oscPing(char * pingVal){
+  char ping[64] = "/eos/ping/";
+  strcat(ping, pingVal);
+  oscMessageLength = oscSend(oscMessage, ping, TCP10);
+  osc.write(oscMessage, oscMessageLength);
+}
+
+void oscMacro(int macroTrigger){
+  char macroT[12];
+  itoa(macroTrigger, macroT,10);
+  char macro[64] = "/eos/macro/";
+  char fire[12] = "/fire";
+  strcat(macro, macroT);
+  strcat(macro, fire);
+  oscMessageLength = oscSend(oscMessage, macro, TCP10);
   osc.write(oscMessage, oscMessageLength);
 }
 
@@ -431,6 +483,18 @@ void webForm() {
               if (val >= 23 && val <= 23) {
                 RemIPmax = finder.getValue();
               }
+              if(val == 24){
+                button1 = finder.getValue();
+              }
+              if(val == 25){
+                button2 = finder.getValue();
+              }
+              if(val == 26){
+                button3 = finder.getValue();
+              }
+              if(val == 27){
+                button4 = finder.getValue();
+              }                                          
             }
             for (int i = 0; i < 4; i++) {
               EEPROM.write(i + 7, myIP[i]);
@@ -446,6 +510,10 @@ void webForm() {
             }
             EEPROM.write(22, RemIPmin);
             EEPROM.write(23, RemIPmax);
+            EEPROM.write(24, button1);
+            EEPROM.write(25, button2);
+            EEPROM.write(26, button3);
+            EEPROM.write(27, button4);
             EEPROM.write(0, 0x92);
             delay(5);
             resetFunc(); //reset arduino after save to EEPROM
@@ -499,26 +567,48 @@ void webForm() {
           strcpy_P(buffer, (char * ) pgm_read_word( & (string_table4[3])));
           client.print(buffer);
           client.print(myGW[3], DEC);
-          strcpy_P(buffer, (char * ) pgm_read_word( & (string_table4[4])));
+          strcpy_P(buffer, (char * ) pgm_read_word( & (string_table5[0])));
           client.print(buffer);
           client.print(RemIP[0], DEC);
-          strcpy_P(buffer, (char * ) pgm_read_word( & (string_table4[5])));
+          strcpy_P(buffer, (char * ) pgm_read_word( & (string_table5[1])));
           client.print(buffer);
           client.print(RemIP[1], DEC);
-          strcpy_P(buffer, (char * ) pgm_read_word( & (string_table4[6])));
+          strcpy_P(buffer, (char * ) pgm_read_word( & (string_table5[2])));
           client.print(buffer);
           client.print(RemIP[2], DEC);
-          strcpy_P(buffer, (char * ) pgm_read_word( & (string_table4[7])));
+          strcpy_P(buffer, (char * ) pgm_read_word( & (string_table5[3])));
           client.print(buffer);
           client.print(RemIPmin, DEC);
-          strcpy_P(buffer, (char * ) pgm_read_word( & (string_table4[8])));
+          strcpy_P(buffer, (char * ) pgm_read_word( & (string_table5[4])));
           client.print(buffer);
           client.print(RemIPmax, DEC);
-          strcpy_P(buffer, (char * ) pgm_read_word( & (string_table4[9])));
+          strcpy_P(buffer, (char * ) pgm_read_word( & (string_table6[0])));
           client.print(buffer);
-          strcpy_P(buffer, (char * ) pgm_read_word( & (string_table4[10])));
+          strcpy_P(buffer, (char * ) pgm_read_word( & (string_table6[1])));
+          client.print(buffer);          
+          client.print(button1);
+          strcpy_P(buffer, (char * ) pgm_read_word( & (string_table6[2])));
           client.print(buffer);
-          strcpy_P(buffer, (char * ) pgm_read_word( & (string_table4[11])));
+          strcpy_P(buffer, (char * ) pgm_read_word( & (string_table6[3])));
+          client.print(buffer);
+          client.print(button2);
+          strcpy_P(buffer, (char * ) pgm_read_word( & (string_table6[4])));
+          client.print(buffer);          
+          strcpy_P(buffer, (char * ) pgm_read_word( & (string_table6[5])));
+          client.print(buffer);
+          client.print(button3);
+          strcpy_P(buffer, (char * ) pgm_read_word( & (string_table6[6])));
+          client.print(buffer);          
+          strcpy_P(buffer, (char * ) pgm_read_word( & (string_table6[7])));
+          client.print(buffer);
+          client.print(button4);
+          strcpy_P(buffer, (char * ) pgm_read_word( & (string_table6[8])));
+          client.print(buffer);          
+          strcpy_P(buffer, (char * ) pgm_read_word( & (string_table7[0])));
+          client.print(buffer);                                        
+          strcpy_P(buffer, (char * ) pgm_read_word( & (string_table7[1])));
+          client.print(buffer);
+          strcpy_P(buffer, (char * ) pgm_read_word( & (string_table7[2])));
           client.print(buffer);
           break;
         }
